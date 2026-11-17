@@ -8,6 +8,12 @@
   <body>
     <div id="app">
       <h1>Document AI Processor</h1>
+      <p id="modeBanner" class="mode-banner">Loading…</p>
+      <div class="upload-section">
+        <label for="fileInput" class="file-input-label">Choose a .docx or .txt file</label>
+        <input type="file" id="fileInput" accept=".docx,.txt,.md" />
+        <button type="button" id="sampleButton" class="search-button">Try a sample document</button>
+      </div>
       <div id="results"></div>
     </div>
     <script type="module" src="/src/main.js"></script>

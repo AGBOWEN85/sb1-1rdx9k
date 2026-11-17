@@ -18,6 +18,17 @@ class App {
   }
 
   initializeApp() {
+    const mode = document.getElementById('modeBanner');
+    if (mode) {
+      mode.textContent = this.ai.demo
+        ? 'Demo mode, no AI key: everything runs in your browser. Summary, key terms and search are computed locally, and nothing is uploaded.'
+        : 'AI mode: OpenAI is used for summary, insights and answers.';
+      mode.className = this.ai.demo ? 'mode-banner demo' : 'mode-banner live';
+    }
+    document.getElementById('sampleButton')?.addEventListener('click', async () => {
+      const file = new File([SAMPLE_TEXT], 'sample.txt', { type: 'text/plain' });
+      await this.handleFileUpload(file);
+    });
     new DocumentUploader(async (file) => {
       await this.handleFileUpload(file);
     });
@@ -43,6 +54,7 @@ class App {
     try {
       const result = await this.processDocument(file);
       this.display.showResults(result);
+      this.initializeSearchForm();
     } catch (error) {
       console.error('Failed to process document:', error);
       this.display.showError(error.message);
@@ -61,9 +73,10 @@ class App {
   }
 
   async processDocument(file) {
-    const buffer = await file.arrayBuffer();
-    const text = await this.processor.processDocx(buffer);
+    const text = await this.processor.processFile(file);
+    if (!text || !text.trim()) throw new Error('No readable text found in this file.');
     const analysis = await this.processor.analyzeText(text);
+    if (!analysis.chunks.length) analysis.chunks = [text.trim().slice(0, 1000)];
     
     // Generate embeddings for each chunk
     const embeddings = await this.ai.generateEmbeddings(analysis.chunks);
@@ -91,5 +104,11 @@ class App {
   }
 }
 
+const SAMPLE_TEXT = `Document AI Processor turns a Word or text file into searchable knowledge. When you upload a file, the text is extracted and split into chunks. Each chunk gets an embedding so similar passages can be found later.
+
+In demo mode no AI key is used. Embeddings are computed locally with a hashed bag of words, the summary picks the sentences that carry the most key terms, and search returns the closest passages. With a server-side key configured, the same pipeline uses OpenAI for summaries, insights and answers.
+
+Privacy matters. In demo mode the file never leaves your browser. Keys are never bundled into the public page.`;
+
 // Initialize the application
-new App();
+window.app = new App();

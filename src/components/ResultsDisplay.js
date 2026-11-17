@@ -1,3 +1,5 @@
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 export class ResultsDisplay {
   constructor(containerId = 'results') {
     this.container = document.getElementById(containerId);
@@ -10,7 +12,7 @@ export class ResultsDisplay {
   showSearchLoading() {
     const searchResults = document.getElementById('searchResults');
     if (searchResults) {
-      searchResults.innerHTML = '<div class="loading">Searching...</div>';
+      searchResults.insertAdjacentHTML('beforeend', '<div class="loading">Searching...</div>');
     }
   }
 
@@ -18,7 +20,7 @@ export class ResultsDisplay {
     this.container.innerHTML = `
       <div class="error-container">
         <h3>Error Processing Document</h3>
-        <p>${message}</p>
+        <p>${esc(message)}</p>
       </div>
     `;
   }
@@ -26,12 +28,13 @@ export class ResultsDisplay {
   showSearchError(message) {
     const searchResults = document.getElementById('searchResults');
     if (searchResults) {
-      searchResults.innerHTML = `
+      searchResults.querySelector('.loading')?.remove();
+      searchResults.insertAdjacentHTML('beforeend', `
         <div class="error-container">
           <h3>Error Processing Query</h3>
-          <p>${message}</p>
+          <p>${esc(message)}</p>
         </div>
-      `;
+      `);
     }
   }
 
@@ -72,12 +75,12 @@ export class ResultsDisplay {
 
         <section class="analysis-section">
           <h2>Summary</h2>
-          <p>${summary}</p>
+          <p>${esc(summary)}</p>
         </section>
 
         <section class="analysis-section">
           <h2>AI Insights</h2>
-          <div class="insights-content">${insights}</div>
+          <div class="insights-content">${esc(insights)}</div>
         </section>
 
         <section class="analysis-section">
@@ -110,13 +113,14 @@ export class ResultsDisplay {
   showSearchResults(results) {
     const searchResults = document.getElementById('searchResults');
     if (searchResults) {
+      searchResults.querySelector('.loading')?.remove();
       const existingResults = searchResults.innerHTML;
       searchResults.innerHTML = `
         ${existingResults}
         <div class="search-results-container">
           <div class="answer-section">
             <h3>Answer</h3>
-            <p>${results.answer}</p>
+            <p>${esc(results.answer)}</p>
           </div>
           
           <div class="sources-section">
@@ -127,7 +131,7 @@ export class ResultsDisplay {
                   <span class="source-number">Source ${index + 1}</span>
                   <span class="source-score">Relevance: ${(source.score * 100).toFixed(1)}%</span>
                 </div>
-                <p class="source-text">${source.text}</p>
+                <p class="source-text">${esc(source.text)}</p>
               </div>
             `).join('')}
           </div>

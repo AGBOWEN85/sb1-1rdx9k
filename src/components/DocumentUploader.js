@@ -20,9 +20,9 @@ export class DocumentUploader {
     return `
       <div class="upload-section">
         <label for="fileInput" class="file-input-label">
-          Choose DOCX file
+          Choose a .docx or .txt file
         </label>
-        <input type="file" id="fileInput" accept=".docx" />
+        <input type="file" id="fileInput" accept=".docx,.txt,.md" />
       </div>
     `;
   }
