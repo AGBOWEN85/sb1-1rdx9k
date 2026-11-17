@@ -1,3 +1,4 @@
+import { ChatMemory } from './chatMemory.js';
 export class QueryEngine {
   constructor(vectorStore, aiService) {
     this.vectorStore = vectorStore;
@@ -23,19 +24,7 @@ export class QueryEngine {
     // Add user question to memory
     this.memory.addMessage("user", question);
 
-    // Generate response using AI with chat history
-    const response = await this.aiService.chat.completions.create({
-      model: "gpt-4-turbo-preview",
-      messages: [
-        ...this.memory.getMessages(),
-        {
-          role: "system",
-          content: `Here is the relevant context from the document:\n\n${context}`
-        }
-      ]
-    });
-
-    const answer = response.choices[0].message.content;
+    const answer = await this.aiService.answer(this.memory.getMessages(), context);
     
     // Add assistant response to memory
     this.memory.addMessage("assistant", answer);

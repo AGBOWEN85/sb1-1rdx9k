@@ -1,7 +1,14 @@
+import mammoth from 'mammoth';
+
 export class DocumentProcessor {
   async processDocx(buffer) {
-    const result = await mammoth.extractRawText({ buffer });
+    const result = await mammoth.extractRawText({ arrayBuffer: buffer });
     return result.value;
+  }
+
+  async processFile(file) {
+    if (/\.(txt|md)$/i.test(file.name)) return await file.text();
+    return this.processDocx(await file.arrayBuffer());
   }
 
   tokenizeText(text) {
